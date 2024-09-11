@@ -26,6 +26,7 @@ VXLAN VTEP termination in Leaf (SR Linux) and Core3 (Cumulus) switches.
 - [Containerlab](https://containerlab.dev/)
 - [Docker](https://docs.docker.com/engine/install/)
 - [SR Linux Container image](https://github.com/nokia/srlinux-container-image)
+- [Cumulus Container image](https://hub.docker.com/r/networkop/cx/tags)
 - [FRR](https://quay.io/repository/frrouting/frr)
 - [Netmiko](https://github.com/ktbyers/netmiko)
 
