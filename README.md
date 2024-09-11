@@ -5,7 +5,7 @@ SR Linux BGP IPv6 Unnumbered VXLAN DC Fabric running in Containerlab
 
 ![image](images/topology.png)
 
-- Leaf, Spines, Super/Spines and Internet/router are SR Linux nodes
+- Leaf, Spines, Super/Spines and Internet/router are SR Linux nodes (24.7.x software version)
 - Core switches are Cumulus nodes
 - Clients are simulated with FRR docker images: connected to Leaf and Core3 switches
 - Uses Netmiko to configure SR Linux switches
