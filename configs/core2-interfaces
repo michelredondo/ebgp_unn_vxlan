@@ -1,0 +1,55 @@
+# Ansible Managed File
+auto lo
+iface lo inet loopback
+    address 10.255.255.2/32
+    address 2001:1600:0000:100b:10:255:255:2/128
+    vxlan-local-tunnelip 10.255.255.2
+
+
+auto eth0
+iface eth0  inet dhcp
+    vrf mgmt
+
+auto mgmt
+iface mgmt
+    vrf-table auto
+    address 127.0.0.1/8
+    address ::1/128
+
+
+
+auto swp1
+iface swp1
+
+auto swp2
+iface swp2
+
+auto swp3
+iface swp3
+
+auto swp3
+iface swp3
+
+auto swp4
+iface swp4
+
+auto swp5
+iface swp5
+
+auto swp6
+iface swp6
+
+auto swp7
+iface swp7
+
+auto swp8
+iface swp8
+
+auto swp9
+iface swp9
+
+auto swp10
+iface swp10
+
+auto swp11
+iface swp11

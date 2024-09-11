@@ -1,0 +1,86 @@
+# Ansible Managed File
+auto lo
+iface lo inet loopback
+    address 10.255.255.3/32
+    address 2001:1600:0000:100b:10:255:255:3/128
+    vxlan-local-tunnelip 10.255.255.3
+
+
+auto eth0
+iface eth0  inet dhcp
+    vrf mgmt
+
+auto mgmt
+iface mgmt
+    vrf-table auto
+    address 127.0.0.1/8
+    address ::1/128
+
+auto swp1
+iface swp1
+
+auto swp2
+iface swp2
+
+auto swp3
+iface swp3
+    bridge-vids 30
+    bridge-allow-untagged no
+auto swp4
+iface swp4
+    bridge-vids 31
+    bridge-allow-untagged no
+
+auto swp5
+iface swp5
+    bridge-vids 32
+    bridge-allow-untagged no
+
+auto swp6
+iface swp6
+    bridge-vids 33
+    bridge-allow-untagged no
+
+    
+auto swp7
+iface swp7
+    address 33.33.33.1/24
+    address 1000:33:33:33::1/64
+
+auto vni1
+iface vni1
+    bridge-access 30
+    vxlan-id 5
+    mstpctl-portbpdufilter yes
+    mstpctl-bpduguard yes
+    bridge-learning off
+
+auto vni2
+iface vni2
+    bridge-access 31
+    vxlan-id 6
+    mstpctl-portbpdufilter yes
+    mstpctl-bpduguard yes
+    bridge-learning off
+
+auto vni3
+iface vni3
+    bridge-access 32
+    vxlan-id 7
+    mstpctl-portbpdufilter yes
+    mstpctl-bpduguard yes
+    bridge-learning off
+
+auto vni4
+iface vni4
+    bridge-access 33
+    vxlan-id 8
+    mstpctl-portbpdufilter yes
+    mstpctl-bpduguard yes
+    bridge-learning off
+
+auto bridge
+iface bridge
+    bridge-ports vni1 vni2 vni3 vni4 swp3 swp4 swp5 swp6
+    bridge-vids 30 31 32 33   
+    bridge-vlan-aware yes

@@ -1,0 +1,722 @@
+name: unn
+prefix: ""
+
+#mgmt:
+#  network: br-mgmt101
+#  ipv4-subnet: 100.103.101.0/24
+
+topology:
+  kinds:
+    srl:
+      image: srlinux:24.7.1
+    linux:
+      image: quay.io/frrouting/frr:9.0.2
+
+  nodes:
+    inf-core1:
+      kind: cvx
+      image: networkop/cx:5.3.0
+      #runtime: docker
+      binds:
+        - configs/core1-interfaces:/etc/network/interfaces
+        - configs/daemons-cumulus:/etc/frr/daemons
+        - configs/core1-frr.conf:/etc/frr/frr.conf
+    inf-core2:
+      kind: cvx
+      image: networkop/cx:5.3.0
+      #runtime: docker
+      binds:
+        - configs/core2-interfaces:/etc/network/interfaces
+        - configs/daemons-cumulus:/etc/frr/daemons
+        - configs/core2-frr.conf:/etc/frr/frr.conf
+    inf-core3:
+      kind: cvx
+      image: networkop/cx:5.3.0
+      #runtime: docker
+      binds:
+        - configs/core3-interfaces:/etc/network/interfaces
+        - configs/daemons-cumulus:/etc/frr/daemons
+        - configs/core3-frr.conf:/etc/frr/frr.conf
+
+    inf-leaf1:
+      kind: srl
+      type: ixrd2l
+    inf-leaf2:
+      kind: srl
+      type: ixrd2l
+    inf-leaf3:
+      kind: srl
+      type: ixrd2l
+    inf-leaf4:
+      kind: srl
+      type: ixrd2l
+    inf-leaf5:
+      kind: srl
+      type: ixrd2l
+    inf-leaf6:
+      kind: srl
+      type: ixrd2l
+    inf-leaf7:
+      kind: srl
+      type: ixrd2l
+    inf-leaf8:
+      kind: srl
+      type: ixrd2l
+    
+    inf-spine1:
+      kind: srl
+      type: ixrd3l
+    inf-spine2:
+      kind: srl
+      type: ixrd3l
+    inf-spine3:
+      kind: srl
+      type: ixrd3l
+    inf-spine4:
+      kind: srl
+      type: ixrd3l
+
+    inf-cspine1:
+      kind: srl
+      type: ixrh4
+    inf-cspine2:
+      kind: srl
+      type: ixrh4
+    inf-cspine3:
+      kind: srl
+      type: ixrh4
+    inf-cspine4:
+      kind: srl
+      type: ixrh4
+    
+    inf-router1:
+      kind: srl
+      type: ixrh4
+    
+    ##CLIENTS
+    ##leaf12 rack1
+    inf-client-L12-1:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L12-1-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L12-2:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L12-2-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L12-3:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 12.12.1.2/24 dev bond0.10
+        - ip a add 1000:12:12:1::2/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 12.12.1.1
+        - ip -6 route add ::/0 via 1000:12:12:1::1
+
+
+    inf-client-L12-4:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L12-4-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L12-5:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 100.100.100.2/24 dev bond0.10
+        - ip a add 1000:100:100:100::2/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 100.100.100.1
+        - ip -6 route add ::/0 via 1000:100:100:100::1
+  
+
+    ##CLIENTS
+    ##leaf34 rack2
+    inf-client-L34-1:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L34-1-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L34-2:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L34-2-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+
+    inf-client-L34-3:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 34.34.1.2/24 dev bond0.10
+        - ip a add 1000:34:34:1::2/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 34.34.1.1
+        - ip -6 route add ::/0 via 1000:34:34:1::1
+
+    inf-client-L34-4:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L34-4-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L34-5:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 100.100.100.3/24 dev bond0.10
+        - ip a add 1000:100:100:100::3/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 100.100.100.1
+        - ip -6 route add ::/0 via 1000:100:100:100::1
+
+    ##CLIENTS
+    ##leaf56 rack3
+    inf-client-L56-1:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L56-1-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L56-2:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L56-2-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L56-3:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+     - bash /hostname.sh
+     - ip link add bond0 type bond mode 802.3ad
+     - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+     - ip link set dev eth1 down
+     - ip link set dev eth2 down
+     - ip link set eth1 master bond0
+     - ip link set eth2 master bond0
+     - ip link set dev eth1 up
+     - ip link set dev eth2 up
+     - ip link set dev bond0 type bond lacp_rate fast
+     - ip link set dev bond0 up
+     - ip link add link bond0 name bond0.10 type vlan id 10
+     - ip link set dev bond0.10 up
+     - ip a add 56.56.1.2/24 dev bond0.10
+     - ip a add 1000:56:56:1::2/64 dev bond0.10
+     - ip route del 0.0.0.0/0
+     - ip -6 route del ::/0
+     - ip route add 0.0.0.0/0 via 56.56.1.1
+     - ip -6 route add ::/0 via 1000:56:56:1::1
+
+    inf-client-L56-4:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L56-4-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L56-5:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 100.100.100.4/24 dev bond0.10
+        - ip a add 1000:100:100:100::4/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 100.100.100.1
+        - ip -6 route add ::/0 via 1000:100:100:100::1
+
+    ##CLIENTS
+    ##leaf78 rack4
+    inf-client-L78-1:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L78-1-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L78-2:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L78-2-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.10 type vlan id 10
+        - ip link set eth1.10 up
+        - ip link add link eth2 name eth2.10 type vlan id 10
+        - ip link set eth2.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L78-3:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 78.78.1.2/24 dev bond0.10
+        - ip a add 1000:78:78:1::2/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 78.78.1.1
+        - ip -6 route add ::/0 via 1000:78:78:1::1
+
+    inf-client-L78-4:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-L78-4-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-L78-5:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip link add bond0 type bond mode 802.3ad
+        - ip link set dev bond0 type bond xmit_hash_policy layer3+4
+        - ip link set dev eth1 down
+        - ip link set dev eth2 down
+        - ip link set eth1 master bond0
+        - ip link set eth2 master bond0
+        - ip link set dev eth1 up
+        - ip link set dev eth2 up
+        - ip link set dev bond0 type bond lacp_rate fast
+        - ip link set dev bond0 up
+        - ip link add link bond0 name bond0.10 type vlan id 10
+        - ip link set dev bond0.10 up
+        - ip a add 100.100.100.5/24 dev bond0.10
+        - ip a add 1000:100:100:100::5/64 dev bond0.10
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 100.100.100.1
+        - ip -6 route add ::/0 via 1000:100:100:100::1
+
+
+    inf-client-C3-1:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-C3-1-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.30 type vlan id 30
+        - ip link set eth1.30 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-C3-2:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-C3-2-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.31 type vlan id 31
+        - ip link set eth1.31 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-C3-3:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-C3-3-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.32 type vlan id 32
+        - ip link set eth1.32 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+
+    inf-client-C3-4:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+        - configs/daemons:/etc/frr/daemons
+        - configs/inf-client-C3-4-frr.conf:/etc/frr/frr.conf
+     exec:
+        - bash /hostname.sh
+        - ip link add link eth1 name eth1.33 type vlan id 33
+        - ip link set eth1.33 up
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+    
+    inf-client-C3-5:
+     kind: linux
+     binds:
+        - configs/hostname.sh:/hostname.sh
+     exec:
+        - bash /hostname.sh
+        - ip a add 33.33.33.33/24 dev eth1
+        - ip a add 1000:33:33:33::33/64 dev eth1
+        - ip route del 0.0.0.0/0
+        - ip -6 route del ::/0
+        - ip route add 0.0.0.0/0 via 33.33.33.1
+        - ip -6 route add ::/0 via 1000:33:33:33::1
+    
+    
+
+
+
+  links:
+  ### #### fabric ### ####
+  ### POD1 ####
+    - endpoints: ["inf-spine1:e1-1", "inf-leaf1:e1-49"]
+    - endpoints: ["inf-spine1:e1-2", "inf-leaf2:e1-49"]
+    - endpoints: ["inf-spine1:e1-3", "inf-leaf3:e1-49"]
+    - endpoints: ["inf-spine1:e1-4", "inf-leaf4:e1-49"]
+    
+    - endpoints: ["inf-spine2:e1-1", "inf-leaf1:e1-50"]
+    - endpoints: ["inf-spine2:e1-2", "inf-leaf2:e1-50"]
+    - endpoints: ["inf-spine2:e1-3", "inf-leaf3:e1-50"]
+    - endpoints: ["inf-spine2:e1-4", "inf-leaf4:e1-50"]
+  ### POD2 ####
+    - endpoints: ["inf-spine3:e1-1", "inf-leaf5:e1-49"]
+    - endpoints: ["inf-spine3:e1-2", "inf-leaf6:e1-49"]
+    - endpoints: ["inf-spine3:e1-3", "inf-leaf7:e1-49"]
+    - endpoints: ["inf-spine3:e1-4", "inf-leaf8:e1-49"]
+    
+    - endpoints: ["inf-spine4:e1-1", "inf-leaf5:e1-50"]
+    - endpoints: ["inf-spine4:e1-2", "inf-leaf6:e1-50"]
+    - endpoints: ["inf-spine4:e1-3", "inf-leaf7:e1-50"]
+    - endpoints: ["inf-spine4:e1-4", "inf-leaf8:e1-50"]
+
+  ### SPINE-SUPERSPINE ####
+    - endpoints: ["inf-spine1:e1-5", "inf-cspine1:e1-1"]
+    - endpoints: ["inf-spine1:e1-6", "inf-cspine2:e1-1"]
+    - endpoints: ["inf-spine1:e1-7", "inf-cspine3:e1-1"]
+    - endpoints: ["inf-spine1:e1-8", "inf-cspine4:e1-1"]
+  
+    - endpoints: ["inf-spine2:e1-5", "inf-cspine1:e1-2"]
+    - endpoints: ["inf-spine2:e1-6", "inf-cspine2:e1-2"]
+    - endpoints: ["inf-spine2:e1-7", "inf-cspine3:e1-2"]
+    - endpoints: ["inf-spine2:e1-8", "inf-cspine4:e1-2"]
+
+    - endpoints: ["inf-spine3:e1-5", "inf-cspine1:e1-3"]
+    - endpoints: ["inf-spine3:e1-6", "inf-cspine2:e1-3"]
+    - endpoints: ["inf-spine3:e1-7", "inf-cspine3:e1-3"]
+    - endpoints: ["inf-spine3:e1-8", "inf-cspine4:e1-3"]
+   
+    - endpoints: ["inf-spine4:e1-5", "inf-cspine1:e1-4"]
+    - endpoints: ["inf-spine4:e1-6", "inf-cspine2:e1-4"]
+    - endpoints: ["inf-spine4:e1-7", "inf-cspine3:e1-4"]
+    - endpoints: ["inf-spine4:e1-8", "inf-cspine4:e1-4"]
+  
+
+  ### SUPERSPINE- Cumulus CORE ####
+  # removed dual uplinks because cvx ignite runtime only supports 11 devices
+  # https://github.com/firecracker-microvm/firecracker/issues/1268
+  
+
+    - endpoints: ["inf-cspine1:e1-5", "inf-core1:swp1"]
+   # - endpoints: ["inf-cspine1:e1-6", "inf-core1:swp2"]
+    - endpoints: ["inf-cspine1:e1-7", "inf-core2:swp1"]
+   # - endpoints: ["inf-cspine1:e1-8", "inf-core2:swp2"]
+
+    - endpoints: ["inf-cspine2:e1-5", "inf-core1:swp3"]
+   # - endpoints: ["inf-cspine2:e1-6", "inf-core1:swp4"]
+    - endpoints: ["inf-cspine2:e1-7", "inf-core2:swp3"]
+   # - endpoints: ["inf-cspine2:e1-8", "inf-core2:swp4"]
+    
+    - endpoints: ["inf-cspine3:e1-5", "inf-core1:swp5"]
+   # - endpoints: ["inf-cspine3:e1-6", "inf-core1:swp6"]
+    - endpoints: ["inf-cspine3:e1-7", "inf-core2:swp5"]
+   # - endpoints: ["inf-cspine3:e1-8", "inf-core2:swp6"]
+
+    - endpoints: ["inf-cspine4:e1-5", "inf-core1:swp7"]
+   # - endpoints: ["inf-cspine4:e1-6", "inf-core1:swp8"]
+    - endpoints: ["inf-cspine4:e1-7", "inf-core2:swp7"]
+   # - endpoints: ["inf-cspine4:e1-8", "inf-core2:swp8"]
+
+  ### CORE -Router ####
+    - endpoints: ["inf-core1:swp10", "inf-router1:e1-1"]
+    - endpoints: ["inf-core2:swp10", "inf-router1:e1-2"]
+
+  ### ISL CORE1 - CORE2 ####
+    - endpoints: ["inf-core1:swp9", "inf-core2:swp9"]
+  
+  ###  CORE - CORE ####
+    - endpoints: ["inf-core1:swp11", "inf-core3:swp1"]
+    - endpoints: ["inf-core2:swp11", "inf-core3:swp2"]
+
+  ### servers ####
+    - endpoints: ["inf-leaf1:e1-1", "inf-client-L12-1:eth1"]
+    - endpoints: ["inf-leaf2:e1-1", "inf-client-L12-1:eth2"]
+    - endpoints: ["inf-leaf1:e1-2", "inf-client-L12-2:eth1"]
+    - endpoints: ["inf-leaf2:e1-2", "inf-client-L12-2:eth2"]
+    - endpoints: ["inf-leaf1:e1-3", "inf-client-L12-3:eth1"]
+    - endpoints: ["inf-leaf2:e1-3", "inf-client-L12-3:eth2"]
+    - endpoints: ["inf-leaf1:e1-4", "inf-client-L12-4:eth1"]
+    - endpoints: ["inf-leaf2:e1-4", "inf-client-L12-4:eth2"]
+    - endpoints: ["inf-leaf1:e1-5", "inf-client-L12-5:eth1"]
+    - endpoints: ["inf-leaf2:e1-5", "inf-client-L12-5:eth2"]
+
+    - endpoints: ["inf-leaf3:e1-1", "inf-client-L34-1:eth1"]
+    - endpoints: ["inf-leaf4:e1-1", "inf-client-L34-1:eth2"]
+    - endpoints: ["inf-leaf3:e1-2", "inf-client-L34-2:eth1"]
+    - endpoints: ["inf-leaf4:e1-2", "inf-client-L34-2:eth2"]
+    - endpoints: ["inf-leaf3:e1-3", "inf-client-L34-3:eth1"]
+    - endpoints: ["inf-leaf4:e1-3", "inf-client-L34-3:eth2"]
+    - endpoints: ["inf-leaf3:e1-4", "inf-client-L34-4:eth1"]
+    - endpoints: ["inf-leaf4:e1-4", "inf-client-L34-4:eth2"]
+    - endpoints: ["inf-leaf3:e1-5", "inf-client-L34-5:eth1"]
+    - endpoints: ["inf-leaf4:e1-5", "inf-client-L34-5:eth2"]
+
+    - endpoints: ["inf-leaf5:e1-1", "inf-client-L56-1:eth1"]
+    - endpoints: ["inf-leaf6:e1-1", "inf-client-L56-1:eth2"]
+    - endpoints: ["inf-leaf5:e1-2", "inf-client-L56-2:eth1"]
+    - endpoints: ["inf-leaf6:e1-2", "inf-client-L56-2:eth2"]
+    - endpoints: ["inf-leaf5:e1-3", "inf-client-L56-3:eth1"]
+    - endpoints: ["inf-leaf6:e1-3", "inf-client-L56-3:eth2"]
+    - endpoints: ["inf-leaf5:e1-4", "inf-client-L56-4:eth1"]
+    - endpoints: ["inf-leaf6:e1-4", "inf-client-L56-4:eth2"]
+    - endpoints: ["inf-leaf5:e1-5", "inf-client-L56-5:eth1"]
+    - endpoints: ["inf-leaf6:e1-5", "inf-client-L56-5:eth2"]
+
+    - endpoints: ["inf-leaf7:e1-1", "inf-client-L78-1:eth1"]
+    - endpoints: ["inf-leaf8:e1-1", "inf-client-L78-1:eth2"]
+    - endpoints: ["inf-leaf7:e1-2", "inf-client-L78-2:eth1"]
+    - endpoints: ["inf-leaf8:e1-2", "inf-client-L78-2:eth2"]
+    - endpoints: ["inf-leaf7:e1-3", "inf-client-L78-3:eth1"]
+    - endpoints: ["inf-leaf8:e1-3", "inf-client-L78-3:eth2"]
+    - endpoints: ["inf-leaf7:e1-4", "inf-client-L78-4:eth1"]
+    - endpoints: ["inf-leaf8:e1-4", "inf-client-L78-4:eth2"]
+    - endpoints: ["inf-leaf7:e1-5", "inf-client-L78-5:eth1"]
+    - endpoints: ["inf-leaf8:e1-5", "inf-client-L78-5:eth2"]
+
+
+    - endpoints: ["inf-core3:swp3", "inf-client-C3-1:eth1"]
+    - endpoints: ["inf-core3:swp4", "inf-client-C3-2:eth1"]
+    - endpoints: ["inf-core3:swp5", "inf-client-C3-3:eth1"]
+    - endpoints: ["inf-core3:swp6", "inf-client-C3-4:eth1"]
+    
+    - endpoints: ["inf-core3:swp7", "inf-client-C3-5:eth1"]
+
