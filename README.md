@@ -104,6 +104,6 @@ Lag interface uses Multihoming all-active EVPN Ethernet Segment procedures.
 
 
 
-## Tests
+## Summary of services
 
 <img src="images/summary_services.png">
