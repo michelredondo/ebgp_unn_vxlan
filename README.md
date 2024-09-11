@@ -3,7 +3,7 @@ SR Linux BGP IPv6 Unnumbered VXLAN DC Fabric running in Containerlab
 
 ## Topology 
 
-![image](https://github.com/user-attachments/assets/aaec89b2-e484-4f59-810f-814bcfd3e1b9)
+![image](images/topology.png)
 
 - Leaf, Spines, Super/Spines and Internet/router are SR Linux nodes
 - Core switches are Cumulus nodes
@@ -62,7 +62,7 @@ Leaf switches announce default v4/v6 route.
 FRR clients announces local network.
 Connection is terminated in GTR (network-instance default).
 
-<img src="https://github.com/user-attachments/assets/542b1d20-4fd1-4452-b7a4-9438829b6aa5" width="450" height="auto">
+<img src="images/routed_port_grt.png" width="450" height="auto">
 
 ### Multihomed bridged port in GRT
 
@@ -72,7 +72,7 @@ Leaf switches announce default v4/v6 route.
 FRR clients announces local network
 Connection is terminated in GTR (network-instance default).
 
-<img src="https://github.com/user-attachments/assets/0606bde6-e4c2-47bd-adf8-8454dbc9f9c2" width="450" height="auto">
+<img src="images/bridged_port_grt.png" width="450" height="auto">
 
 ### Lag port in GRT
 
@@ -83,7 +83,7 @@ Leaf switches announce directly connected network.
 FRR clients uses static routing.
 Connection is terminated in GTR (network-instance default).
 
-<img src="https://github.com/user-attachments/assets/8072a7ca-f5cf-4cb2-acdf-991913c1395f" width="450" height="auto">
+<img src="images/lag_port_grt.png" width="450" height="auto">
 
 ### Lag port in mac-vrf (Layer 2 EVPN)
 
@@ -92,7 +92,7 @@ An unnumbered BGP session is established between client connected to leaf switch
 
 Lag interface uses Multihoming all-active EVPN Ethernet Segment procedures.
 
-<img src="https://github.com/user-attachments/assets/d26cf38d-aceb-49a7-b9b3-2b59e7a5a665" width="550" height="auto">
+<img src="images/layer2_evpn.png" width="550" height="auto">
 
 ### Lag port in mac-vrf&ip-vrf (Layer 3 EVPN Anycast gateways)
 
@@ -100,10 +100,10 @@ FRR client is connected to a leaf-pair by using a bridged lag interface (using I
 
 Lag interface uses Multihoming all-active EVPN Ethernet Segment procedures.
 
-<img src="https://github.com/user-attachments/assets/973d0cf8-d77f-4871-99d5-9b36f4c3bfa3" width="450" height="auto">
+<img src="images/layer3_evpn_anycast_gw.png" width="450" height="auto">
 
 
 
 ## Tests
 
-![image](https://github.com/user-attachments/assets/a4770c75-0baf-48ab-89b7-c808235f1c57)
+<img src="images/summary_services.png">
