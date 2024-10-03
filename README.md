@@ -10,12 +10,13 @@ SR Linux BGP IPv6 Unnumbered VXLAN DC Fabric running in Containerlab
 - Clients are simulated with FRR docker images: connected to Leaf and Core3 switches
 - Uses Netmiko to configure SR Linux switches
 
-All BGP sessions are established through IPv6 link-local addresses: 
+All BGP sessions are established through IPv6 link-local addresses except the overlay EVPN: 
 
 - FRRClient <-> leaf: IPv4 and IPv6 families.
-- Leaf <-> Spine: EVPN, IPv4 and IPv6 families.
-- Spine <-> SuperSpine: EVPN, IPv4 and IPv6 families.
-- SuperSpine <-> Core: EVPN, IPv4 and IPv6 families.
+- Underlay Leaf <-> Spine:  IPv4 and IPv6 families.
+- Underlay Spine <-> SuperSpine: EVPN, IPv4 and IPv6 families.
+- Underlay SuperSpine <-> Core: EVPN, IPv4 and IPv6 families.
+- Overlay between Leaf/Spine/SuperSpine and Core: EBGP Multihop EVPN
 - Core <-> Core: EVPN, IPv4 and IPv6 families.
 - Core <-> InternetRouter: IPv4 and IPv6 families.
 
